@@ -11,9 +11,11 @@ module module_mesh
 contains
 
   subroutine tmesh_allocate(self,xmin,xmax,nx,ymin,ymax,ny)
+    implicit none
     type(tmesh)  :: self
     integer      :: nx,ny
-    real(kind=8) :: xmin,xmax,ymin,ymax
+    real(kind=8) :: xmin,xmax,ymin,ymax,hx,hy
+    integer :: i,j
     print*,"tmesh_allocate"
 
     self%nx=nx
@@ -71,6 +73,7 @@ end subroutine tmesh_allocate
 
 
   subroutine tmesh_allocate_var(self,dg01,dg02,dg03)
+    implicit none
     type(tmesh)  :: self
     real(kind=8) ,dimension(:,:),allocatable :: dg01,dg02,dg03
     integer :: nx,ny

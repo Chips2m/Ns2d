@@ -35,6 +35,7 @@ contains
 
     integer :: i,j,nx,ny,p
     
+    u=0
     p=0
     do j=1,mesh%ny
        do i=1,mesh%nx
@@ -44,6 +45,21 @@ contains
     end do
   end subroutine vec2array
   
+
+  subroutine Set_neumann_bc(mesh,u)
+    implicit none
+    type(tmesh)    :: mesh
+    real(kind=8),dimension(:,:),allocatable :: u
+
+    
+    u(1:mesh%nx,       0)  = u(1:mesh%nx,     1)
+    u(1:mesh%nx,mesh%nx+1) = u(1:mesh%nx,mesh%nx)
+    u(        0,1:mesh%ny) = u(      1,1:mesh%ny)
+    u(mesh%nx+1,1:mesh%ny) = u(mesh%nx,1:mesh%ny)
+    
+  end subroutine Set_neumann_bc
+  
+
   subroutine tsolver_solve(self,mesh,s,fi)
     implicit none
     type(tsolver)  :: self
@@ -55,10 +71,13 @@ contains
 
     iter = 50
     tol = 1e-12
-    iprint=6
-    call dagmg(self%nrows,self%fi,self%ja,self%ia,self%b,self%x,0,iprint,0,iter,tol)
+    iprint=0
+    call dagmg(self%nrows,self%fi,self%ja,self%ia,self%b,self%x,0,iprint,10,iter,tol)
     
     call vec2array(mesh,self%x,fi)
+    call Set_neumann_bc(mesh,fi)
+    
+
 
   end subroutine tsolver_solve
   
@@ -145,7 +164,10 @@ contains
              ap = ap + an
              tmp = tmp-1
           end if
-
+          
+          if ((i==1).and.(j==1))  then
+             ap = ap - 2*aw 
+          end if
           col=(/jp,jw,je,js,jn/)
           val=(/ap,aw,ae,as,an/)
           

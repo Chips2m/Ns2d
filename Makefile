@@ -1,11 +1,13 @@
 #include $(CS2_HOME)/make.inc
 
-FC=gfortran -fdefault-real-8 
+FC=gfortran -g -Wall -fbacktrace -ffree-line-length-0 -fcheck=all
 
 SOURCES_F90 =\
 module_mesh.f90\
 module_discretization.f90\
-module_solver.f90
+module_solver.f90\
+dagmg.f90\
+dagmg_mumps.f90
 
 OBJECTS=$(SOURCES_F90:.f90=.o) $(SOURCES_F77:.f=.o)
 
@@ -23,7 +25,7 @@ realclean: clean
 	rm -f *~ \#*\#
 
 ns2d: $(OBJECTS)
-	$(FC) -o $@.x $@.f90 $(OBJECTS)
+	$(FC) -o $@.x $@.f90 $(OBJECTS) /usr/lib/lapack/liblapack.so /usr/lib/libblas/libblas.so
 
 %.o: %.f90
 	$(FC) $(INCS) $(FCFLAGS) -c $< -o $@
